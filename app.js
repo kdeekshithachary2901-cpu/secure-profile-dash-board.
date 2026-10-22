@@ -1,8 +1,8 @@
-// 1. Initialize Supabase Connection
-const SUPABASE_URL = "https://supabase.co" 
-const SUPABASE_ANON_KEY = "PASTE_YOUR_LONG_ANON_PUBLIC_KEY_HERE" // Put your real key here!
+// 1. Initialize Supabase Connection (Fixed Variable Name)
+const SUPABASE_URL = "https://supabase.com/dashboard/project/lfbrwpfstkfshavbxiqh/settings/api-keys" 
+const SUPABASE_ANON_KEY = "sb_publishable_Ls0bR8mzUx7KYuM6ZqEdpA_u18oB9wa" 
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+const mySupabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 // 2. Grab DOM elements
 const loginView = document.getElementById('login-view')
@@ -13,7 +13,7 @@ const userEmailText = document.getElementById('user-email')
 
 // 3. Login Action Functionality via GitHub OAuth
 loginBtn.addEventListener('click', async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error } = await mySupabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
             redirectTo: window.location.origin
@@ -24,12 +24,12 @@ loginBtn.addEventListener('click', async () => {
 
 // 4. Logout Action Functionality
 logoutBtn.addEventListener('click', async () => {
-    const { error } = await supabase.auth.signOut()
+    const { error } = await mySupabase.auth.signOut()
     if (!error) window.location.reload()
 })
 
 // 5. Monitor authentication state transitions
-supabase.auth.onAuthStateChange((event, session) => {
+mySupabase.auth.onAuthStateChange((event, session) => {
     if (session) {
         loginView.classList.add('hidden')
         dashboardView.classList.remove('hidden')
@@ -37,5 +37,37 @@ supabase.auth.onAuthStateChange((event, session) => {
     } else {
         loginView.classList.remove('hidden')
         dashboardView.classList.add('hidden')
+    }
+})
+// 6. Grab Profile UI Inputs
+const profileNameInput = document.getElementById('profile-name')
+const profileBioInput = document.getElementById('profile-bio')
+const saveProfileBtn = document.getElementById('save-profile-btn')
+
+// 7. Save Profile Changes to Supabase Database
+saveProfileBtn.addEventListener('click', async () => {
+    // Get the currently authenticated user session details
+    const { data: { user } } = await mySupabase.auth.getUser()
+    
+    if (!user) {
+        alert('You must be logged in to save profile data!')
+        return
+    }
+
+    // Upsert means: Update if the profile exists, otherwise Insert a new one
+    const { error } = await mySupabase
+        .from('profiles')
+        .upsert({
+            id: user.id,
+            full_name: profileNameInput.value,
+            bio: profileBioInput.value,
+            updated_at: new Date().toISOString()
+        })
+
+    if (error) {
+        console.error('Error saving profile:', error.message)
+        alert('Error saving data: ' + error.message)
+    } else {
+        alert('Profile saved successfully to your secure database!');
     }
 })
