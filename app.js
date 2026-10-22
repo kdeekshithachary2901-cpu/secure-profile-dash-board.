@@ -29,14 +29,35 @@ logoutBtn.addEventListener('click', async () => {
 })
 
 // 5. Monitor authentication state transitions
-mySupabase.auth.onAuthStateChange((event, session) => {
+// 5. Monitor authentication state transitions & load profile data dynamically
+mySupabase.auth.onAuthStateChange(async (event, session) => {
     if (session) {
+        // A. Toggle UI Views
         loginView.classList.add('hidden')
         dashboardView.classList.remove('hidden')
         userEmailText.innerText = `Logged in as: ${session.user.email}`
+
+        // B. Fetch saved profile row data from Supabase
+        const { data, error } = await mySupabase
+            .from('profiles')
+            .select('full_name, bio')
+            .eq('id', session.user.id)
+            .single() // Expecting exactly 1 profile matching this unique User ID
+
+        // C. If data exists, automatically populate the dashboard text boxes!
+        if (data && !error) {
+            profileNameInput.value = data.full_name || ''
+            profileBioInput.value = data.bio || ''
+        } else if (error && error.code !== 'PGRST116') {
+            // PGRST116 just means "no profile row found yet", which is normal for brand new users
+            console.error('Error downloading profile data:', error.message)
+        }
     } else {
+        // User logged out - clean views
         loginView.classList.remove('hidden')
         dashboardView.classList.add('hidden')
+        profileNameInput.value = ''
+        profileBioInput.value = ''
     }
 })
 // 6. Grab Profile UI Inputs
