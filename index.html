@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Profile Dashboard</title>
+    <!-- Connect directly to the official Supabase Client CDN -->
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 40px; background: #f4f4f9; text-align: center; }
+        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: inline-block; min-width: 300px; }
+        button { background: #24292e; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 15px; }
+        button:hover { background: #444; }
+        .hidden { display: none; }
+        input, textarea { width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-view" class="card">
+        <h2>Secure Profile Manager</h2>
+        <p>Log in securely using your GitHub developer account.</p>
+        <button id="login-btn">Login with GitHub</button>
+    </div>
+
+    <!-- PROTECTED DASHBOARD SCREEN -->
+    <div id="dashboard-view" class="card hidden">
+        <h2>Welcome to your Dashboard</h2>
+        <p id="user-email"></p>
+        
+        <h3>Your Profile Information</h3>
+        <input type="text" id="profile-name" placeholder="Full Name">
+        <textarea id="profile-bio" placeholder="Your Bio / Professional Summary"></textarea>
+        <button id="save-profile-btn">Save Profile Changes</button>
+        <br>
+        <button id="logout-btn" style="background: #dc3545;">Logout</button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
